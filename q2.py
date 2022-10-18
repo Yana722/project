@@ -29,5 +29,3 @@ def evaluate(img_out, ground_truth):
     print("The fractions of pixels with errors less than 1 pixels is", error_1)
     print("The fractions of pixels with errors less than 0.5 pixels is", error_05)
     print("The fractions of pixels with errors less than 0.25 pixels is", error_025)
-
-    return error
