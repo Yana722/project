@@ -1,16 +1,16 @@
 import copy
 import numpy as np
 
-def SSD(imgL, imgR, size, dmax):
+def SSD_Smooth(imgL, imgR, size, dmax, ssd_out, lambd):
 
-    ssd_imageL = copy.deepcopy(imgL)
+    ssd_image = copy.deepcopy(ssd_out)
 
     width = len(imgL)
     lenth = len(imgL[0])
     blank = size//2
 
-    for i in range(width): # the loop for the y-axis in left image
-        for j in range(lenth): # the loop for the x-axis in left image
+    for i in range(1, width-1): # the loop for the y-axis in left image
+        for j in range(1,lenth-1): # the loop for the x-axis in left image
 
             best = None
             result = None
@@ -59,13 +59,16 @@ def SSD(imgL, imgR, size, dmax):
                     k_end = k+rblank
 
                 windowR = np.ascontiguousarray(imgR[i_start:i_end, k_start:k_end])
+                d = np.abs(j-k)
+                a = np.abs(d-ssd_out[i-1, j])
+                smooth = lambd * (np.abs(d-ssd_out[i-1, j]) + np.abs(d-ssd_out[i, j-1]) + np.abs(d-ssd_out[i+1, j]) + np.abs(d-ssd_out[i, j+1]) + np.abs(d-ssd_out[i-1, j-1]) + np.abs(d-ssd_out[i-1, j+1]), + np.abs(d-ssd_out[i+1, j-1]) + np.abs(d-ssd_out[i+1, j+1]))
 
-                ssd = np.sum((windowL - windowR) ** 2)
+                ssd = np.sum((windowL - windowR) ** 2) + smooth
 
                 if best==None or ssd<best:
                     best = ssd
                     result = np.abs(j-k)
 
-            ssd_imageL[i,j] = result
+            ssd_image[i,j] = result
 
-    return ssd_imageL
+    return ssd_image

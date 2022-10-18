@@ -1,6 +1,10 @@
+import time
 import cv2
 from matplotlib import pyplot as plt
 from SSDmodel import SSD
+from SSD_Gaus import SSD_Gaus
+from SSD_sub_pixel import SSD_sub_pixel
+from SSD_Smooth import SSD_Smooth
 import numpy as np
 
 imgL = cv2.imread("./2018-07-09-16-11-56_2018-07-09-16-11-56-702-left.jpg", cv2.IMREAD_GRAYSCALE) # left image
@@ -19,12 +23,16 @@ imgR = cv2.imread("./2018-07-09-16-11-56_2018-07-09-16-11-56-702-right.jpg", cv2
 
 #plt.show()
 
-dmax = 79
-ssdL = SSD(imgL, imgR, 33, dmax)
+dmax = 100
+window_size = 7
+start = time.time()
+weight = 0.5
+#ssd = SSD(imgL, imgR, window_size, dmax)
+#ssd = SSD_Smooth(imgL, imgR, window_size, dmax, ssd, weight)
+ssd = SSD_sub_pixel(imgL, imgR, window_size, dmax)
+end = time.time()
+print("The runtime of algorithm is", int(end-start), "seconds")
 
-plt.imshow(ssdL, cmap = 'gray')
+plt.imshow(ssd, cmap='gray')
 plt.axis('off')
 plt.show()
-
-#gaussian_kernel = cv2.getGaussianKernel(15, 5)
-#gaussian_kernel = np.outer(gaussian_kernel, gaussian_kernel)
