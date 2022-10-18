@@ -2,9 +2,9 @@ import copy
 import numpy as np
 import cv2
 
-def SSD_sub_pixel(imgL, imgR, size, dmax, weight):
+def NCC_sub_pixel(imgL, imgR, size, dmax, weight):
 
-    ssd_image = copy.deepcopy(imgL)
+    ncc_image = copy.deepcopy(imgL)
 
     width = len(imgL)
     lenth = len(imgL[0])
@@ -63,9 +63,9 @@ def SSD_sub_pixel(imgL, imgR, size, dmax, weight):
 
                 windowR = np.ascontiguousarray(imgR[i_start:i_end, k_start:k_end])
 
-                ssd = np.sum((windowL - windowR) ** 2)
+                ncc = np.mean(np.multiply(windowL, windowR)) / (np.std(windowL) * np.std(windowR))
 
-                if best==None or ssd<best:
+                if best==None or ncc>best:
                     best = ssd
                     result = np.abs(j-k)
                     best_k = k
@@ -84,6 +84,6 @@ def SSD_sub_pixel(imgL, imgR, size, dmax, weight):
                         best_k = best_k + (n - (lsize*weight-weight)//2)/weight
                         result = np.abs(j-k)
 
-            ssd_image[i,j] = result
+            ncc_image[i,j] = result
 
-    return ssd_image
+    return ncc_image

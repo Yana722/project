@@ -2,31 +2,13 @@ import copy
 import cv2
 import numpy as np
 
-def SSD(imgL, imgR, size, dmax):
+def NCC(imgL, imgR, size, dmax):
 
-    ncc_imageL = copy.deepcopy(imgL)
+    ncc_image = copy.deepcopy(imgL)
 
     width = len(imgL)
     lenth = len(imgL[0])
     blank = size//2
-
-    # I use Gaussian kernel there but we can change it
-    # use a kernel shows the importance of pixels in the matching window
-    gk = cv2.getGaussianKernel(15, 5)
-    Gaussian_kernel2d = np.outer(gk, gk)
-
-    imgL = cv2.filter2D(imgL, -1, Gaussian_kernel2d)
-
-    # how about sobel, which makes edge more important？
-    #sobel_kernel_x = np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]])
-    # Y-Direction Kernel (Horizontal)
-    #sobel_kernel_y = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
-
-    # Use Sobel filter to approximate the derivative of gaussian (for both x and y)
-    #dx = cv2.filter2D(imgL, -1, sobel_kernel_x)
-    #dy = cv2.filter2D(imgL, -1, sobel_kernel_y)
-
-    #imgL = np.hypot(dx, dy)  # equivalent to sqrt(x1**2 + x2**2), element-wise
 
     for i in range(width): # the loop for the y-axis in left image
         for j in range(lenth): # the loop for the x-axis in left image
@@ -54,14 +36,6 @@ def SSD(imgL, imgR, size, dmax):
                 j_end = j+blank+1
 
             windowL = np.ascontiguousarray(imgL[i_start:i_end, j_start:j_end])
-            imgL = cv2.filter2D(windowL, -1, Gaussian_kernel2d)
-
-            #kernel_up = size - len(windowL)//2
-            #kernel_down = size + len(windowL) - len(windowL)//2
-            #kernel_left = size - len(windowL[0])//2
-            #kernel_right = size + len(windowL[0]) - len(windowL[0])//2
-            #window_kernel = np.ascontiguousarray(Gaussian_kernel2d[kernel_up:kernel_down,kernel_left:kernel_right])
-            #windowL = cv2.filter2D(windowL,-1,window_kernel)
 
             rsize = len(windowL[0])
             rblank = rsize//2
@@ -87,12 +61,12 @@ def SSD(imgL, imgR, size, dmax):
 
                 windowR = np.ascontiguousarray(imgR[i_start:i_end, k_start:k_end])
 
-                ncc= np.mean(np.multiply((windowL-np.mean(windowL)), (windowR-np.mean(windowR)))) / (np.std(windowL) * np.std(windowR))
+                ncc = np.mean(np.multiply(windowL, windowR)) / (np.std(windowL) * np.std(windowR))
 
                 if best==None or ncc>best:
                     best = ncc
                     result = np.abs(j-k)
 
-            ncc_imageL[i,j] = result
+            ncc_image[i,j] = result
 
-    return ncc_imageL
+    return ncc_image

@@ -1,21 +1,19 @@
 import copy
 import numpy as np
-import cv2
 
-def SSD_sub_pixel(imgL, imgR, size, dmax, weight):
+def NCC_Smooth(imgL, imgR, size, dmax, ssd_out, lambd):
 
-    ssd_image = copy.deepcopy(imgL)
+    ncc_image = copy.deepcopy(ssd_out)
 
     width = len(imgL)
     lenth = len(imgL[0])
     blank = size//2
 
-    for i in range(width): # the loop for the y-axis in left image
-        for j in range(lenth): # the loop for the x-axis in left image
+    for i in range(1, width-1): # the loop for the y-axis in left image
+        for j in range(1,lenth-1): # the loop for the x-axis in left image
 
             best = None
             result = None
-            best_k = None
 
             # check size is enouth or not
             if i-blank < 0:
@@ -38,7 +36,6 @@ def SSD_sub_pixel(imgL, imgR, size, dmax, weight):
 
             windowL = np.ascontiguousarray(imgL[i_start:i_end, j_start:j_end])
 
-            lsize = len(windowL)
             rsize = len(windowL[0])
             rblank = rsize//2
 
@@ -62,28 +59,15 @@ def SSD_sub_pixel(imgL, imgR, size, dmax, weight):
                     k_end = k+rblank
 
                 windowR = np.ascontiguousarray(imgR[i_start:i_end, k_start:k_end])
+                d = np.abs(j-k)
+                smooth = lambd * (np.abs(d-ssd_out[i-1, j]) + np.abs(d-ssd_out[i, j-1]) + np.abs(d-ssd_out[i+1, j]) + np.abs(d-ssd_out[i, j+1]) + np.abs(d-ssd_out[i-1, j-1]) + np.abs(d-ssd_out[i-1, j+1]) + np.abs(d-ssd_out[i+1, j-1]) + np.abs(d-ssd_out[i+1, j+1]))
 
-                ssd = np.sum((windowL - windowR) ** 2)
+                ncc = np.mean(np.multiply(windowL, windowR)) / (np.std(windowL) * np.std(windowR)) + smooth
 
-                if best==None or ssd<best:
-                    best = ssd
+                if best==None or ncc>best:
+                    best = ncc
                     result = np.abs(j-k)
-                    best_k = k
 
-            # bilinear interpolation
-            subpixel = cv2.resize(windowR, (rsize*weight-weight+1, lsize*weight-weight+1))
-            best = None
-            for m in range(lsize*weight-weight-lsize+2):
-                for n in range(rsize*weight-weight-rsize+2):
-                    windowR = np.ascontiguousarray(subpixel[m:m+lsize, n:n+rsize])
+            ncc_image[i,j] = result
 
-                    ssd = np.sum((windowL - windowR) ** 2)
-
-                    if best==None or ssd<best:
-                        best = ssd
-                        best_k = best_k + (n - (lsize*weight-weight)//2)/weight
-                        result = np.abs(j-k)
-
-            ssd_image[i,j] = result
-
-    return ssd_image
+    return ncc_image

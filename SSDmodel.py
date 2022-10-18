@@ -3,7 +3,7 @@ import numpy as np
 
 def SSD(imgL, imgR, size, dmax):
 
-    ssd_imageL = copy.deepcopy(imgL)
+    ssd_image = copy.deepcopy(imgL)
 
     width = len(imgL)
     lenth = len(imgL[0])
@@ -66,6 +66,6 @@ def SSD(imgL, imgR, size, dmax):
                     best = ssd
                     result = np.abs(j-k)
 
-            ssd_imageL[i,j] = result
+            ssd_image[i,j] = result
 
-    return ssd_imageL
+    return ssd_image

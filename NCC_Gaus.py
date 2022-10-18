@@ -2,9 +2,9 @@ import copy
 import cv2
 import numpy as np
 
-def SSD_Gaus(imgL, imgR, size, dmax):
+def NCC_Gaus(imgL, imgR, size, dmax):
 
-    ssd_image = copy.deepcopy(imgL)
+    ncc_image = copy.deepcopy(imgL)
 
     width = len(imgL)
     lenth = len(imgL[0])
@@ -89,12 +89,12 @@ def SSD_Gaus(imgL, imgR, size, dmax):
                 windowR = np.ascontiguousarray(imgR[i_start:i_end, k_start:k_end])
                 windowR = cv2.filter2D(windowR, -1, Gaussian_kernel2d)
 
-                ssd = np.sum((windowL - windowR) ** 2)
+                ncc = np.mean(np.multiply(windowL, windowR)) / (np.std(windowL) * np.std(windowR))
 
-                if best==None or ssd<best:
-                    best = ssd
+                if best==None or ncc>best:
+                    best = ncc
                     result = np.abs(j-k)
 
-            ssd_image[i,j] = result
+            ncc_image[i,j] = result
 
-    return ssd_image
+    return ncc_image
