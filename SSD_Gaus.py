@@ -10,11 +10,6 @@ def SSD_Gaus(imgL, imgR, size, dmax):
     lenth = len(imgL[0])
     blank = size//2
 
-    # use Gaussian kernel there but we can change it
-    # use a kernel shows the importance of pixels in the matching window
-    gk = cv2.getGaussianKernel(15, 5)
-    Gaussian_kernel2d = np.outer(gk, gk)
-
     # how about sobel, which makes edge more important？
     #sobel_kernel_x = np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]])
     # Y-Direction Kernel (Horizontal)
@@ -52,6 +47,14 @@ def SSD_Gaus(imgL, imgR, size, dmax):
                 j_end = j+blank+1
 
             windowL = np.ascontiguousarray(imgL[i_start:i_end, j_start:j_end])
+            lsize = len(windowL)
+            rsize = len(windowL[0])
+            # use Gaussian kernel there but we can change it
+            # use a kernel shows the importance of pixels in the matching window
+            gk1 = cv2.getGaussianKernel(lsize, 0.3*((lsize-1)*0.5-1)+0.8)
+            gk2 = cv2.getGaussianKernel(rsize, 0.3*((lsize-1)*0.5-1)+0.8)
+            Gaussian_kernel2d = np.outer(gk1, gk2)
+
             windowL = cv2.filter2D(windowL, -1, Gaussian_kernel2d)
 
             #kernel_up = size - len(windowL)//2
