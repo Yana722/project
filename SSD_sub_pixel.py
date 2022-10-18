@@ -2,7 +2,7 @@ import copy
 import numpy as np
 import cv2
 
-def SSD_sub_pixel(imgL, imgR, size, dmax):
+def SSD_sub_pixel(imgL, imgR, size, dmax, weight):
 
     ssd_imageL = copy.deepcopy(imgL)
 
@@ -16,7 +16,6 @@ def SSD_sub_pixel(imgL, imgR, size, dmax):
             best = None
             result = None
             best_k = None
-            best_windowR = None
 
             # check size is enouth or not
             if i-blank < 0:
@@ -55,7 +54,7 @@ def SSD_sub_pixel(imgL, imgR, size, dmax):
                 elif k+rblank >= lenth:
                     k_start = lenth-rsize
                     k_end = lenth
-                # elif rsize%2 != 0:
+                elif rsize%2 != 0:
                     k_start = k-rblank
                     k_end = k+rblank+1
                 else:
@@ -69,20 +68,20 @@ def SSD_sub_pixel(imgL, imgR, size, dmax):
                 if best==None or ssd<best:
                     best = ssd
                     result = np.abs(j-k)
-                    best_windowR = windowR
+                    best_k = k
 
             # bilinear interpolation
-            f
-
+            subpixel = cv2.resize(windowR, (rsize*weight-weight+1, lsize*weight-weight+1))
             best = None
-            for m in range(lsize*2-lsize+1):
-                for n in range(rsize*2-rsize+1):
-                    windowR = np.ascontiguousarray(resize[m:m+lsize, n:n+rsize])
+            for m in range(lsize*weight-weight-lsize+2):
+                for n in range(rsize*weight-weight-rsize+2):
+                    windowR = np.ascontiguousarray(subpixel[m:m+lsize, n:n+rsize])
 
                     ssd = np.sum((windowL - windowR) ** 2)
 
                     if best==None or ssd<best:
                         best = ssd
+                        k = k + (n - (lsize*weight-weight)//2)/weight
                         result = np.abs(j-k)
 
             ssd_imageL[i,j] = result
