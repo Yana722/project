@@ -89,7 +89,7 @@ def SSD(imgL, imgR, size, dmax):
 
                 ncc= np.mean(np.multiply((windowL-np.mean(windowL)), (windowR-np.mean(windowR)))) / (np.std(windowL) * np.std(windowR))
 
-                if best==None or ncc<best:
+                if best==None or ncc>best:
                     best = ncc
                     result = np.abs(j-k)
 

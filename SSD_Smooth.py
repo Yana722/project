@@ -60,8 +60,7 @@ def SSD_Smooth(imgL, imgR, size, dmax, ssd_out, lambd):
 
                 windowR = np.ascontiguousarray(imgR[i_start:i_end, k_start:k_end])
                 d = np.abs(j-k)
-                a = np.abs(d-ssd_out[i-1, j])
-                smooth = lambd * (np.abs(d-ssd_out[i-1, j]) + np.abs(d-ssd_out[i, j-1]) + np.abs(d-ssd_out[i+1, j]) + np.abs(d-ssd_out[i, j+1]) + np.abs(d-ssd_out[i-1, j-1]) + np.abs(d-ssd_out[i-1, j+1]), + np.abs(d-ssd_out[i+1, j-1]) + np.abs(d-ssd_out[i+1, j+1]))
+                smooth = lambd * (np.abs(d-ssd_out[i-1, j]) + np.abs(d-ssd_out[i, j-1]) + np.abs(d-ssd_out[i+1, j]) + np.abs(d-ssd_out[i, j+1]) + np.abs(d-ssd_out[i-1, j-1]) + np.abs(d-ssd_out[i-1, j+1]) + np.abs(d-ssd_out[i+1, j-1]) + np.abs(d-ssd_out[i+1, j+1]))
 
                 ssd = np.sum((windowL - windowR) ** 2) + smooth
 

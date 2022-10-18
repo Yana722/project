@@ -27,9 +27,9 @@ dmax = 100
 window_size = 7
 start = time.time()
 weight = 0.5
-#ssd = SSD(imgL, imgR, window_size, dmax)
-#ssd = SSD_Smooth(imgL, imgR, window_size, dmax, ssd, weight)
-ssd = SSD_sub_pixel(imgL, imgR, window_size, dmax)
+ssd = SSD(imgL, imgR, window_size, dmax)
+ssd = SSD_Smooth(imgL, imgR, window_size, dmax, ssd, weight)
+#ssd = SSD_sub_pixel(imgL, imgR, window_size, dmax)
 end = time.time()
 print("The runtime of algorithm is", int(end-start), "seconds")
 
